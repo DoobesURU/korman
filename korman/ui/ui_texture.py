@@ -82,6 +82,7 @@ class PlasmaLayerPanel(TextureButtonsPanel, bpy.types.Panel):
         col.label("Miscellaneous:")
         col.active = not use_stencil
         col.prop(layer_props, "opacity", text="Opacity")
+        col.prop(layer_props, "use_alpha_vcol", text="Use Alpha VCol")
         col.separator()
 
         col = col.column()
