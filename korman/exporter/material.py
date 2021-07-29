@@ -480,6 +480,8 @@ class MaterialConverter:
             layer.opacity = layer_props.opacity / 100
             if layer_props.opacity < 100 and not state.blendFlags & hsGMatState.kBlendMask:
                 state.blendFlags |= hsGMatState.kBlendAlpha
+            if layer_props.use_alpha_vcol:
+                state.blendFlags |= hsGMatState.kBlendAlpha
             if layer_props.alpha_halo:
                 state.blendFlags |= hsGMatState.kBlendAlphaTestHigh
             if layer_props.z_bias:
@@ -1204,22 +1206,28 @@ class MaterialConverter:
         if emit_scale > 0.0:
             if color is None:
                 color = bm.diffuse_color
-            return hsColorRGBA(color.r * emit_scale,
-                               color.g * emit_scale,
-                               color.b * emit_scale,
+            return hsColorRGBA(color.r + 0.15,
+                               color.g + 0.15,
+                               color.b + 0.15,
                                1.0)
         else:
             return utils.color(bpy.context.scene.world.ambient_color)
 
     def get_material_preshade(self, bo, bm, color : Union[None, mathutils.Color]=None) -> hsColorRGBA:
+        emit_scale = bm.emit
         if bo.plasma_modifiers.lighting.rt_lights:
+            return hsColorRGBA.kBlack
+        if emit_scale > 0.0:
             return hsColorRGBA.kBlack
         if color is None:
             color = bm.diffuse_color
         return utils.color(color)
 
     def get_material_runtime(self, bo, bm, color : Union[None, mathutils.Color]=None) -> hsColorRGBA:
+        emit_scale = bm.emit
         if not bo.plasma_modifiers.lighting.preshade:
+            return hsColorRGBA.kBlack
+        if emit_scale > 0.0:
             return hsColorRGBA.kBlack
         if color is None:
             color = bm.diffuse_color
