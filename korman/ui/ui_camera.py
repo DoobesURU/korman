@@ -60,7 +60,7 @@ def draw_camera_mode_props(layout, cam_type, props):
     col = split.column()
     col.label("Camera Mode:")
     col = col.column()
-    col.alert = cam_type != "fixed" and props.poa_type == "none"
+    col.alert = cam_type not in {"fixed", "firstperson"} and props.poa_type == "none"
     col.prop(props, "poa_type", text="")
     col.alert = False
     row = col.row()

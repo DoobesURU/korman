@@ -23,7 +23,7 @@ camera_types = [("circle", "Circle Camera", "The camera circles a fixed point"),
                 ("follow", "Follow Camera", "The camera follows an object"),
                 ("fixed", "Fixed Camera", "The camera is fixed in one location"),
                 ("rail", "Rail Camera", "The camera follows an object by moving along a line"),
-                ("firstperson", "First Person", "Simulates first person view and disappears avatar")]
+                ("firstperson", "First Person Camera", "Simulates first person view and disappears avatar")]
 
 class PlasmaTransition(bpy.types.PropertyGroup):
     poa_acceleration = FloatProperty(name="PoA Acceleration",
