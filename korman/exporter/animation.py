@@ -272,24 +272,30 @@ class AnimationConverter:
 
         convert_volume = lambda x: math.log10(max(.01, x / 100.0)) * 20.0
 
-        for i, sound in enumerate(filter(lambda x: x.enabled, soundemit.sounds)):
-            path = sound.path_from_id("volume")
+        for sound in soundemit.sounds:
+            path = "{}.volume".format(sound.path_from_id())
             fcurve = next((i for i in fcurves if i.data_path == path and i.keyframe_points), None)
             if fcurve is None:
                 continue
 
-            applicator = plSoundVolumeApplicator()
-            applicator.channelName = name
-            applicator.index = i
+            for i in soundemit.get_sound_indices(sound=sound):
+                applicator = plSoundVolumeApplicator()
+                applicator.channelName = name
+                applicator.index = i
 
-            controller = self.make_scalar_leaf_controller(fcurve, convert=convert_volume, start=start, end=end)
-            if controller is not None:
-                channel = plScalarControllerChannel()
-                channel.controller = controller
-                applicator.channel = channel
-                yield applicator
-            else:
-                self._exporter().report.warn(f"[{sound.sound.name}]: Volume animation evaluated to zero keyframes!")
+                # libHSPlasma assumes a channel is not shared among applicators...
+                # so yes, we must convert the same animation data again and again.
+                # To make matters worse, the way that these keyframes are stored can cause
+                # the animation to evaluate to a no-op. Be ready for that.
+                controller = self.make_scalar_leaf_controller(fcurve, convert=convert_volume, start=start, end=end)
+                if controller is not None:
+                    channel = plScalarControllerChannel()
+                    channel.controller = controller
+                    applicator.channel = channel
+                    yield applicator
+                else:
+                    self._exporter().report.warn(f"[{sound.sound.name}]: Volume animation evaluated to zero keyframes!")
+                    break
 
     def _convert_spot_lamp_animation(self, name, fcurves, lamp, start, end):
         if not fcurves:

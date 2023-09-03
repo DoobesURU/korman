@@ -838,34 +838,34 @@ class PlasmaSoundMsgNode(idprops.IDPropObjectMixin, PlasmaMessageWithCallbacksNo
 
         # Remember that 3D stereo sounds are exported as two emitters...
         # But, if we only have one sound attached, who cares, we can just address the message to all
-        msg = plSoundMsg()
-        sound_keys = tuple(soundemit.get_sound_keys(exporter, self.sound_name))
-        indices = frozenset((i[1] for i in sound_keys))
+        audible_key = exporter.mgr.find_create_key(plAudioInterface, bl=self.emitter_object)
+        indices = (-1,) if not self.sound_name or len(soundemit.sounds) == 1 else soundemit.get_sound_indices(self.sound_name)
+        for idx in indices:
+            msg = plSoundMsg()
+            msg.addReceiver(audible_key)
+            msg.index = idx
 
-        if indices:
-            assert len(indices) == 1, "Only one sound index should result from a sound emitter"
-            msg.index = next(iter(indices))
-        else:
-            msg.index = -1
-        for i in sound_keys:
-            msg.addReceiver(i[0])
+            # NOTE: There are a number of commands in Plasma's enumeration that do nothing.
+            #       This is what I determine to be the most useful and functional subset...
+            #       Please see plAudioInterface::MsgReceive for more details.
+            if self.go_to == "BEGIN":
+                msg.setCmd(plSoundMsg.kGoToTime)
+                msg.time = 0.0
+            elif self.go_to == "TIME":
+                msg.setCmd(plSoundMsg.kGoToTime)
+                msg.time = self.time
 
-        # NOTE: There are a number of commands in Plasma's enumeration that do nothing.
-        #       This is what I determine to be the most useful and functional subset...
-        #       Please see plAudioInterface::MsgReceive for more details.
-        if self.go_to == "BEGIN":
-            msg.setCmd(plSoundMsg.kGoToTime)
-            msg.time = 0.0
-        elif self.go_to == "TIME":
-            msg.setCmd(plSoundMsg.kGoToTime)
-            msg.time = self.time
+            if self.volume == "MUTE":
+                msg.setCmd(plSoundMsg.kSetVolume)
+                msg.volume = 0.0
+            elif self.volume == "CUSTOM":
+                msg.setCmd(plSoundMsg.kSetVolume)
+                msg.volume = self.volume_pct / 100.0
 
-        if self.volume == "MUTE":
-            msg.setCmd(plSoundMsg.kSetVolume)
-            msg.volume = 0.0
-        elif self.volume == "CUSTOM":
-            msg.setCmd(plSoundMsg.kSetVolume)
-            msg.volume = self.volume_pct / 100.0
+            if self.looping != "CURRENT":
+                msg.setCmd(getattr(plSoundMsg, self.looping))
+            if self.action != "CURRENT":
+                msg.setCmd(getattr(plSoundMsg, self.action))
 
         if self.looping != "CURRENT":
             msg.setCmd(getattr(plSoundMsg, self.looping))
