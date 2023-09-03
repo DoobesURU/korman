@@ -874,6 +874,9 @@ class PlasmaSoundMsgNode(idprops.IDPropObjectMixin, PlasmaMessageWithCallbacksNo
             if sound is not None and sound.is_3d_stereo:
                 exporter.report.warn(f"'{self.id_data.name}' Node '{self.name}': 3D Stereo sounds should not be started or stopped by messages - they may get out of sync.")
             msg.setCmd(getattr(plSoundMsg, self.action))
+        for snd in soundemit.sounds:
+            if snd.local_only:
+                msg.setCmd(plSoundMsg.kIsLocalOnly, True)
 
         # This used to potentially result in multiple messages. Not anymore!
         # However, I'm leaving it as a yield for now to avoid potentially breaking something.
