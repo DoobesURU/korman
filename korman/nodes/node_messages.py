@@ -870,9 +870,6 @@ class PlasmaSoundMsgNode(idprops.IDPropObjectMixin, PlasmaMessageWithCallbacksNo
         if self.looping != "CURRENT":
             msg.setCmd(getattr(plSoundMsg, self.looping))
         if self.action != "CURRENT":
-            sound = soundemit.sounds.get(self.sound_name, None)
-            if sound is not None and sound.is_3d_stereo:
-                exporter.report.warn(f"'{self.id_data.name}' Node '{self.name}': 3D Stereo sounds should not be started or stopped by messages - they may get out of sync.")
             msg.setCmd(getattr(plSoundMsg, self.action))
         for snd in soundemit.sounds:
             if snd.local_only:
@@ -900,17 +897,7 @@ class PlasmaSoundMsgNode(idprops.IDPropObjectMixin, PlasmaMessageWithCallbacksNo
             if self.go_to == "TIME":
                 layout.prop(self, "time")
 
-        if not random and self.emitter_object is not None:
-            soundemit = self.emitter_object.plasma_modifiers.soundemit
-            sound = soundemit.sounds.get(self.sound_name, None)
-            action_on_3d_stereo = sound is not None and sound.is_3d_stereo and self.action != "CURRENT"
-
-            layout.alert = action_on_3d_stereo
-            layout.prop(self, "action")
-            layout.alert = False
-        else:
-            layout.prop(self, "action")
-
+        layout.prop(self, "action")
         if self.volume == "CUSTOM":
             layout.prop(self, "volume_pct")
         if not random:
