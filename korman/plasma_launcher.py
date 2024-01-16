@@ -184,7 +184,7 @@ def main():
         plasma_args = [str(executable), "-iinit", "To_Dni"]
     else:
         write("DBG: Using a superior client :) :) :)")
-        plasma_args = [str(executable), "-LocalData", "-SkipLoginDialog", "-ServerIni={}".format(args.serverini),
+        plasma_args = [str(executable), "-LocalData", "-LocalSDL", "-SkipLoginDialog", "-ServerIni={}".format(args.serverini),
                        "-PlayerId={}".format(args.ki), "-Age={}".format(args.age)]
     try:
         proc = subprocess.Popen(plasma_args, cwd=str(args.cwd), shell=True)
