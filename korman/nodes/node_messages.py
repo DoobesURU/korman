@@ -874,6 +874,9 @@ class PlasmaSoundMsgNode(idprops.IDPropObjectMixin, PlasmaMessageWithCallbacksNo
             msg.setCmd(getattr(plSoundMsg, self.looping))
         if self.action != "CURRENT":
             sound = soundemit.sounds.get(self.sound_name, None)
+        for snd in soundemit.sounds:
+            if snd.local_only:
+                msg.setCmd(plSoundMsg.kIsLocalOnly, True)
             if sound is not None and sound.is_3d_stereo:
                 exporter.report.warn(f"'{self.id_data.name}' Node '{self.name}': 3D Stereo sounds should not be started or stopped by messages - they may get out of sync.")
             msg.setCmd(getattr(plSoundMsg, self.action))
