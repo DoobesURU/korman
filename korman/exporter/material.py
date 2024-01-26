@@ -463,7 +463,10 @@ class MaterialConverter:
                 if slot.blend_type == "ADD":
                     state.blendFlags |= hsGMatState.kBlendAddColorTimesAlpha
                 elif slot.blend_type == "MULTIPLY":
-                    state.blendFlags |= hsGMatState.kBlendMult
+                    if slot.use_map_alpha:
+                        state.blendFlags |= hsGMatState.kBlendAlphaMult | hsGMatState.kBlendAlpha
+                    else:
+                        state.blendFlags |= hsGMatState.kBlendMult
 
             # Check if this layer uses diffuse/runtime lighting
             if bm is not None and not slot.use_map_color_diffuse:
