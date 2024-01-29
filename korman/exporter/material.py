@@ -1332,9 +1332,9 @@ class MaterialConverter:
             emit_scale = bm.emit * 0.5
             if color is None:
                 color = bm.diffuse_color
-            return hsColorRGBA(color.r * emit_scale,
-                               color.g * emit_scale,
-                               color.b * emit_scale,
+            return hsColorRGBA(color.r,
+                               color.g,
+                               color.b,
                                1.0)
         else:
             return utils.color(bpy.context.scene.world.ambient_color)
@@ -1355,6 +1355,8 @@ class MaterialConverter:
                 return hsColorRGBA.kWhite
             elif not bo.plasma_modifiers.lighting.preshade:
                 return hsColorRGBA.kBlack
+            elif self._is_emissive(bm, tex_slot):
+                return hsColorRGBA.kBlack
 
         # Gulp
         return utils.color(bm.diffuse_color)
@@ -1363,6 +1365,8 @@ class MaterialConverter:
         # The layer runstime color has no effect if the lighting equation is kLiteVtxNonPreshaded,
         # so return black to prevent animations from being exported.
         if self._exporter().mesh.is_nonpreshaded(bo, bm):
+            return hsColorRGBA.kBlack
+        elif self._is_emissive(bm, tex_slot):
             return hsColorRGBA.kBlack
 
         # Hmm...
